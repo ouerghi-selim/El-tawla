@@ -1,35 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { supabase, type Profile } from '../../utils/supabase';
 import { storage } from '../../utils/storage';
 
 interface AuthState {
-  user: User | null;
+  user: Profile | null;
   token: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-}
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  points: number;
-  reliability_score: number;
-  type: 'customer' | 'restaurant';
-  badges: string[];
-  score_threshold?: number;
-  score_enabled?: boolean;
-}
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-  type: 'customer' | 'restaurant';
-}
-
-interface RegisterCredentials {
-  name: string;
-  email: string;
-  password: string;
 }
 
 const initialState: AuthState = {
@@ -41,47 +18,63 @@ const initialState: AuthState = {
 
 export const register = createAsyncThunk(
   'auth/register',
-  async (credentials: RegisterCredentials) => {
-    // Simulate API call
-    const mockUser = {
-      id: Math.random().toString(36).substr(2, 9),
+  async (credentials: { name: string; email: string; password: string }) => {
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email: credentials.email,
-      name: credentials.name,
-      points: 0,
-      reliability_score: 100,
-      type: 'customer' as const,
-      badges: ['New Member'],
+      password: credentials.password,
+    });
+
+    if (signUpError) throw new Error(signUpError.message);
+    if (!authData.user) throw new Error('Registration failed');
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([{
+        id: authData.user.id,
+        email: credentials.email,
+        name: credentials.name,
+        type: 'customer',
+      }]);
+
+    if (profileError) throw new Error(profileError.message);
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    return {
+      user: profile,
+      token: authData.session?.access_token || null,
     };
-    const mockToken = 'mock-jwt-token';
-    
-    await storage.setItem('token', mockToken);
-    await storage.setItem('user', JSON.stringify(mockUser));
-    
-    return { user: mockUser, token: mockToken };
   }
 );
 
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials: LoginCredentials) => {
-    // Simulate API call
-    const mockUser = {
-      id: '1',
+  async (credentials: { email: string; password: string; type: 'customer' | 'restaurant' | 'admin' }) => {
+    const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
       email: credentials.email,
-      name: credentials.type === 'restaurant' ? 'Le Baroque' : 'John Doe',
-      points: credentials.type === 'customer' ? 2500 : 0,
-      reliability_score: 95,
-      type: credentials.type,
-      badges: ['Regular', 'Punctual'],
-      score_threshold: credentials.type === 'restaurant' ? 70 : undefined,
-      score_enabled: credentials.type === 'restaurant' ? true : undefined,
+      password: credentials.password,
+    });
+
+    if (signInError) throw new Error(signInError.message);
+    if (!authData.user) throw new Error('Login failed');
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .eq('type', credentials.type)
+      .single();
+
+    if (profileError) throw new Error('Invalid credentials for this user type');
+
+    return {
+      user: profile,
+      token: authData.session?.access_token || null,
     };
-    const mockToken = 'mock-jwt-token';
-    
-    await storage.setItem('token', mockToken);
-    await storage.setItem('user', JSON.stringify(mockUser));
-    
-    return { user: mockUser, token: mockToken };
   }
 );
 
@@ -91,14 +84,18 @@ export const updateScoreSettings = createAsyncThunk(
     const { user } = (getState() as any).auth;
     if (!user || user.type !== 'restaurant') throw new Error('Unauthorized');
 
-    const updatedUser = {
-      ...user,
-      score_threshold: threshold,
-      score_enabled: enabled,
-    };
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .update({
+        score_threshold: threshold,
+        score_enabled: enabled,
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
 
-    await storage.setItem('user', JSON.stringify(updatedUser));
-    return updatedUser;
+    if (error) throw new Error(error.message);
+    return profile;
   }
 );
 
@@ -108,43 +105,47 @@ export const updateUserScore = createAsyncThunk(
     const { user } = (getState() as any).auth;
     if (!user) throw new Error('No user logged in');
 
-    const updatedUser = {
-      ...user,
-      points: user.points + points,
-      reliability_score: Math.max(0, Math.min(100, user.reliability_score + reliability_score)),
-    };
+    const newReliabilityScore = Math.max(0, Math.min(100, user.reliability_score + reliability_score));
+    const newPoints = user.points + points;
 
-    // Update badges based on new score
-    const badges = [...user.badges];
-    if (updatedUser.reliability_score >= 95 && !badges.includes('Reliable')) {
-      badges.push('Reliable');
-    }
-    if (updatedUser.points >= 5000 && !badges.includes('Gold Member')) {
-      badges.push('Gold Member');
-    }
-    updatedUser.badges = badges;
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .update({
+        points: newPoints,
+        reliability_score: newReliabilityScore,
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
 
-    await storage.setItem('user', JSON.stringify(updatedUser));
-    return updatedUser;
+    if (error) throw new Error(error.message);
+    return profile;
   }
 );
 
 export const logout = createAsyncThunk('auth/logout', async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new Error(error.message);
   await storage.removeItem('token');
-  await storage.removeItem('user');
 });
 
 export const checkAuth = createAsyncThunk('auth/check', async () => {
-  const [token, userStr] = await Promise.all([
-    storage.getItem('token'),
-    storage.getItem('user'),
-  ]);
-  
-  if (token && userStr) {
-    const user = JSON.parse(userStr);
-    return { user, token };
-  }
-  throw new Error('No valid session found');
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!session) throw new Error('No session found');
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', session.user.id)
+    .single();
+
+  if (profileError) throw profileError;
+
+  return {
+    user: profile,
+    token: session.access_token,
+  };
 });
 
 const authSlice = createSlice({

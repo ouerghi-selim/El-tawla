@@ -1,5 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+interface Review {
+  id: string;
+  user: {
+    name: string;
+    image: string;
+  };
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 interface Restaurant {
   id: string;
   name: string;
@@ -23,6 +34,7 @@ interface Restaurant {
       description: string;
     }[];
   }[];
+  reviews: Review[];
 }
 
 interface RestaurantState {
@@ -74,6 +86,28 @@ export const fetchRestaurants = createAsyncThunk(
               { name: 'Grilled Sea Bass', price: 30, description: 'Fresh sea bass with saffron sauce' }
             ]
           }
+        ],
+        reviews: [
+          {
+            id: '1',
+            user: {
+              name: 'Sarah M.',
+              image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
+            },
+            rating: 5,
+            comment: 'Amazing experience! The Couscous Royal was absolutely delicious and the service was impeccable.',
+            date: '2025-02-15',
+          },
+          {
+            id: '2',
+            user: {
+              name: 'Ahmed K.',
+              image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100',
+            },
+            rating: 4,
+            comment: 'Great ambiance and authentic flavors. The Tunisian Brik was perfectly crispy.',
+            date: '2025-02-10',
+          }
         ]
       },
       {
@@ -106,9 +140,40 @@ export const fetchRestaurants = createAsyncThunk(
               { name: 'Samak Meshwi', price: 32, description: 'Grilled fish with chermoula' }
             ]
           }
+        ],
+        reviews: [
+          {
+            id: '3',
+            user: {
+              name: 'Lisa R.',
+              image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
+            },
+            rating: 5,
+            comment: 'A true gem in the Medina! The atmosphere is magical and the food is outstanding.',
+            date: '2025-02-18',
+          }
         ]
       }
     ];
+  }
+);
+
+export const addReview = createAsyncThunk(
+  'restaurants/addReview',
+  async ({ restaurantId, rating, comment }: { restaurantId: string; rating: number; comment: string }, { getState }) => {
+    // Simulate API call
+    const newReview = {
+      id: Math.random().toString(36).substr(2, 9),
+      user: {
+        name: 'You',
+        image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
+      },
+      rating,
+      comment,
+      date: new Date().toISOString(),
+    };
+
+    return { restaurantId, review: newReview };
   }
 );
 
@@ -129,6 +194,15 @@ const restaurantSlice = createSlice({
       .addCase(fetchRestaurants.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch restaurants';
+      })
+      .addCase(addReview.fulfilled, (state, action) => {
+        const restaurant = state.restaurants.find(r => r.id === action.payload.restaurantId);
+        if (restaurant) {
+          restaurant.reviews.unshift(action.payload.review);
+          // Update restaurant rating
+          const totalRating = restaurant.reviews.reduce((sum, review) => sum + review.rating, 0);
+          restaurant.rating = Number((totalRating / restaurant.reviews.length).toFixed(1));
+        }
       });
   },
 });

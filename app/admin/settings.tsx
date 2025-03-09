@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateScoreSettings } from '../../store/slices/authSlice';
+import { useRouter } from 'expo-router';
+import { updateScoreSettings, logout } from '../../store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../store';
 
 export default function RestaurantSettings() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   
   const [settings, setSettings] = useState({
@@ -32,6 +34,15 @@ export default function RestaurantSettings() {
       // Show success message
     } catch (error) {
       // Show error message
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      router.replace('/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -207,6 +218,14 @@ export default function RestaurantSettings() {
         >
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </Pressable>
+
+        <Pressable
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#dc3545" />
+          <Text style={styles.logoutText}>Déconnexion</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -281,11 +300,32 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+    marginBottom: 15,
   },
   saveButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  logoutText: {
+    color: '#dc3545',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 10,
   },
   helperText: {
     fontSize: 12,

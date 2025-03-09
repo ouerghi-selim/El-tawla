@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../store';
 
-type LoginType = 'customer' | 'restaurant';
+type LoginType = 'customer' | 'restaurant' | 'admin';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       await dispatch(login({ email, password, type: loginType })).unwrap();
-      router.replace(loginType === 'restaurant' ? '/admin' : '/');
+      router.replace(loginType === 'restaurant' ? '/admin' : loginType === 'admin' ? '/admin-panel' : '/');
     } catch (err) {
       // Error is handled by the reducer
     }
@@ -61,6 +61,22 @@ export default function LoginScreen() {
               ]}
             >
               Restaurant
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.loginTypeButton,
+              loginType === 'admin' && styles.activeLoginType,
+            ]}
+            onPress={() => setLoginType('admin')}
+          >
+            <Text
+              style={[
+                styles.loginTypeText,
+                loginType === 'admin' && styles.activeLoginTypeText,
+              ]}
+            >
+              Admin
             </Text>
           </Pressable>
         </View>
@@ -161,7 +177,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   loginTypeText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     fontWeight: '500',
   },

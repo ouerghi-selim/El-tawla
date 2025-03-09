@@ -1,4 +1,4 @@
-import { Platform, View } from 'react-native';
+import { Platform, View, Linking } from 'react-native';
 import { StyleSheet } from 'react-native';
 
 interface MapMarker {
@@ -24,6 +24,26 @@ interface MapProps {
     longitudeDelta: number;
   };
   onMarkerPress: (id: string) => void;
+}
+
+export function openMapsWithAddress(address: string) {
+  const encodedAddress = encodeURIComponent(address);
+  
+  if (Platform.OS === 'web') {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+  } else {
+    const scheme = Platform.select({
+      ios: 'maps:0,0?q=',
+      android: 'geo:0,0?q=',
+    });
+    const latLng = null; // You can add coordinates here if available
+    const url = Platform.select({
+      ios: `${scheme}${encodedAddress}`,
+      android: `${scheme}${encodedAddress}`,
+    });
+    
+    Linking.openURL(url as string);
+  }
 }
 
 export default function Map({ markers, userLocation, initialRegion, onMarkerPress }: MapProps) {

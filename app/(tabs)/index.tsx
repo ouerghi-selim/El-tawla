@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchRestaurants } from '../../store/slices/restaurantSlice';
 import Map from '../../components/Map';
+import { openMapsWithAddress } from '../../components/Map';
 import type { AppDispatch, RootState } from '../../store';
 
 type FilterCategory = 'cuisine' | 'price' | 'rating';
@@ -50,6 +51,10 @@ export default function DiscoverScreen() {
 
   const handleRestaurantPress = (id: string) => {
     router.push(`/restaurant/${id}`);
+  };
+
+  const handleAddressPress = (address: string) => {
+    openMapsWithAddress(address);
   };
 
   const initialRegion = {
@@ -222,10 +227,18 @@ export default function DiscoverScreen() {
                     <Text style={styles.restaurantInfo}>
                       {restaurant.cuisine} • {restaurant.rating}★ • {restaurant.priceRange}
                     </Text>
-                    <View style={styles.locationInfo}>
+                    <Pressable 
+                      style={styles.locationInfo}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleAddressPress(restaurant.address);
+                      }}
+                    >
                       <Ionicons name="location" size={16} color="#fff" />
-                      <Text style={styles.locationText}>{restaurant.address}</Text>
-                    </View>
+                      <Text style={[styles.locationText, styles.addressLink]}>
+                        {restaurant.address}
+                      </Text>
+                    </Pressable>
                   </LinearGradient>
                 </Pressable>
               ))}
@@ -418,6 +431,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     marginLeft: 5,
+  },
+  addressLink: {
+    textDecorationLine: 'underline',
   },
   promotionsSection: {
     marginTop: 20,

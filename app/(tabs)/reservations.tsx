@@ -1,7 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, ActivityIndicator, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useDispatch } from 'react-redux';
+import { cancelReservation } from '../../store/slices/reservationSlice';
+import { openMapsWithAddress } from '../../components/Map';
+import ReviewForm from '../../components/ReviewForm';
+import type { AppDispatch } from '../../store';
 
 type ReservationStatus = 'upcoming' | 'past' | 'cancelled';
 type TabType = 'upcoming' | 'past' | 'cancelled';
@@ -9,6 +14,7 @@ type TabType = 'upcoming' | 'past' | 'cancelled';
 interface Reservation {
   id: string;
   restaurant: {
+    id: string;
     name: string;
     image: string;
     address: string;
@@ -19,16 +25,23 @@ interface Reservation {
   status: ReservationStatus;
   specialRequests?: string;
   tableNumber?: string;
+  reviewed?: boolean;
 }
 
 export default function ReservationsScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
+  const [showReviewForm, setShowReviewForm] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [modifyingReservation, setModifyingReservation] = useState<string | null>(null);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const reservations: Reservation[] = [
     {
       id: '1',
       restaurant: {
+        id: '1',
         name: 'Le Baroque',
         image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
         address: '15 Avenue Habib Bourguiba, Tunis',
@@ -43,6 +56,7 @@ export default function ReservationsScreen() {
     {
       id: '2',
       restaurant: {
+        id: '2',
         name: 'Dar El Jeld',
         image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330',
         address: '5-10 Rue Dar El Jeld, Medina of Tunis',
@@ -56,6 +70,7 @@ export default function ReservationsScreen() {
     {
       id: '3',
       restaurant: {
+        id: '1',
         name: 'Le Baroque',
         image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
         address: '15 Avenue Habib Bourguiba, Tunis',
@@ -64,10 +79,12 @@ export default function ReservationsScreen() {
       time: '19:30',
       guests: 2,
       status: 'past',
+      reviewed: false,
     },
     {
       id: '4',
       restaurant: {
+        id: '2',
         name: 'Dar El Jeld',
         image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330',
         address: '5-10 Rue Dar El Jeld, Medina of Tunis',
@@ -91,18 +108,59 @@ export default function ReservationsScreen() {
     });
   };
 
-  const handleCancelReservation = (id: string) => {
-    // In a real app, this would call an API to cancel the reservation
-    console.log('Cancelling reservation:', id);
+  const handleCancelReservation = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const reservation = reservations.find(r => r.id === id);
+      if (reservation) {
+        await dispatch(cancelReservation({ reservationId: id, reservation })).unwrap();
+        setShowCancelModal(null);
+        Alert.alert(
+          'Reservation Cancelled',
+          'Your reservation has been successfully cancelled.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'Failed to cancel reservation. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleModifyReservation = (id: string) => {
-    // In a real app, this would navigate to a modification screen
-    console.log('Modifying reservation:', id);
+  const handleModifyReservation = (reservation: Reservation) => {
+    setModifyingReservation(reservation.id);
+    router.push({
+      pathname: `/restaurant/${reservation.restaurant.id}`,
+      params: {
+        modifyReservation: 'true',
+        reservationId: reservation.id,
+        currentDate: reservation.date,
+        currentTime: reservation.time,
+        currentGuests: reservation.guests.toString(),
+      }
+    });
   };
 
-  const handleRestaurantPress = (id: string) => {
-    router.push(`/restaurant/${id}`);
+  const handleRestaurantPress = (restaurantId: string) => {
+    router.push(`/restaurant/${restaurantId}`);
+  };
+
+  const handleAddressPress = (address: string) => {
+    openMapsWithAddress(address);
+  };
+
+  const handleReviewSuccess = (reservationId: string) => {
+    setShowReviewForm(null);
+    Alert.alert(
+      'Review Submitted',
+      'Thank you for your review!',
+      [{ text: 'OK' }]
+    );
   };
 
   const renderEmptyState = () => (
@@ -125,6 +183,45 @@ export default function ReservationsScreen() {
         </Pressable>
       )}
     </View>
+  );
+
+  const renderCancelModal = (reservation: Reservation) => (
+    <Modal
+      visible={showCancelModal === reservation.id}
+      transparent
+      animationType="fade"
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Cancel Reservation</Text>
+          <Text style={styles.modalText}>
+            Are you sure you want to cancel your reservation at {reservation.restaurant.name}?
+          </Text>
+          <Text style={styles.modalSubtext}>
+            This action cannot be undone.
+          </Text>
+          <View style={styles.modalButtons}>
+            <Pressable
+              style={[styles.modalButton, styles.modalButtonSecondary]}
+              onPress={() => setShowCancelModal(null)}
+            >
+              <Text style={styles.modalButtonSecondaryText}>Keep Reservation</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.modalButton, styles.modalButtonPrimary]}
+              onPress={() => handleCancelReservation(reservation.id)}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.modalButtonPrimaryText}>Yes, Cancel</Text>
+              )}
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 
   return (
@@ -165,76 +262,112 @@ export default function ReservationsScreen() {
       ) : (
         <ScrollView style={styles.content}>
           {filteredReservations.map((reservation) => (
-            <View key={reservation.id} style={styles.reservationCard}>
-              <Pressable
-                onPress={() => handleRestaurantPress('1')} // Replace with actual restaurant ID
-                style={styles.restaurantSection}
-              >
-                <Image
-                  source={{ uri: reservation.restaurant.image }}
-                  style={styles.restaurantImage}
-                />
-                <View style={styles.restaurantInfo}>
-                  <Text style={styles.restaurantName}>{reservation.restaurant.name}</Text>
-                  <Text style={styles.restaurantAddress}>{reservation.restaurant.address}</Text>
-                </View>
-              </Pressable>
+            <View key={reservation.id}>
+              <View style={styles.reservationCard}>
+                <Pressable
+                  onPress={() => handleRestaurantPress(reservation.restaurant.id)}
+                  style={styles.restaurantSection}
+                >
+                  <Image
+                    source={{ uri: reservation.restaurant.image }}
+                    style={styles.restaurantImage}
+                  />
+                  <View style={styles.restaurantInfo}>
+                    <Text style={styles.restaurantName}>{reservation.restaurant.name}</Text>
+                    <Pressable
+                      onPress={() => handleAddressPress(reservation.restaurant.address)}
+                      style={styles.addressButton}
+                    >
+                      <Ionicons name="location-outline" size={16} color="#666" />
+                      <Text style={styles.addressText}>{reservation.restaurant.address}</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
 
-              <View style={styles.reservationDetails}>
-                <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={20} color="#666" />
-                  <Text style={styles.detailText}>{formatDate(reservation.date)}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Ionicons name="time-outline" size={20} color="#666" />
-                  <Text style={styles.detailText}>{reservation.time}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Ionicons name="people-outline" size={20} color="#666" />
-                  <Text style={styles.detailText}>{reservation.guests} guests</Text>
-                </View>
-                {reservation.tableNumber && (
+                <View style={styles.reservationDetails}>
                   <View style={styles.detailRow}>
-                    <Ionicons name="grid-outline" size={20} color="#666" />
-                    <Text style={styles.detailText}>Table {reservation.tableNumber}</Text>
+                    <Ionicons name="calendar-outline" size={20} color="#666" />
+                    <Text style={styles.detailText}>{formatDate(reservation.date)}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Ionicons name="time-outline" size={20} color="#666" />
+                    <Text style={styles.detailText}>{reservation.time}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Ionicons name="people-outline" size={20} color="#666" />
+                    <Text style={styles.detailText}>{reservation.guests} guests</Text>
+                  </View>
+                  {reservation.tableNumber && (
+                    <View style={styles.detailRow}>
+                      <Ionicons name="grid-outline" size={20} color="#666" />
+                      <Text style={styles.detailText}>Table {reservation.tableNumber}</Text>
+                    </View>
+                  )}
+                  {reservation.specialRequests && (
+                    <View style={styles.detailRow}>
+                      <Ionicons name="information-circle-outline" size={20} color="#666" />
+                      <Text style={styles.detailText}>{reservation.specialRequests}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {activeTab === 'upcoming' && (
+                  <View style={styles.actions}>
+                    <Pressable
+                      style={[
+                        styles.actionButton,
+                        styles.modifyButton,
+                        modifyingReservation === reservation.id && styles.actionButtonDisabled
+                      ]}
+                      onPress={() => handleModifyReservation(reservation)}
+                      disabled={modifyingReservation === reservation.id}
+                    >
+                      {modifyingReservation === reservation.id ? (
+                        <ActivityIndicator size="small" color="#E3735E" />
+                      ) : (
+                        <>
+                          <Ionicons name="create-outline" size={20} color="#E3735E" />
+                          <Text style={styles.modifyButtonText}>Modify</Text>
+                        </>
+                      )}
+                    </Pressable>
+                    <Pressable
+                      style={[
+                        styles.actionButton,
+                        styles.cancelButton,
+                        isLoading && showCancelModal === reservation.id && styles.actionButtonDisabled
+                      ]}
+                      onPress={() => setShowCancelModal(reservation.id)}
+                      disabled={isLoading && showCancelModal === reservation.id}
+                    >
+                      <Ionicons name="close-circle-outline" size={20} color="#dc3545" />
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </Pressable>
                   </View>
                 )}
-                {reservation.specialRequests && (
-                  <View style={styles.detailRow}>
-                    <Ionicons name="information-circle-outline" size={20} color="#666" />
-                    <Text style={styles.detailText}>{reservation.specialRequests}</Text>
-                  </View>
+
+                {activeTab === 'past' && !reservation.reviewed && (
+                  <Pressable
+                    style={styles.reviewButton}
+                    onPress={() => setShowReviewForm(reservation.id)}
+                  >
+                    <Ionicons name="star-outline" size={20} color="#E3735E" />
+                    <Text style={styles.reviewButtonText}>Write Review</Text>
+                  </Pressable>
                 )}
               </View>
 
-              {activeTab === 'upcoming' && (
-                <View style={styles.actions}>
-                  <Pressable
-                    style={[styles.actionButton, styles.modifyButton]}
-                    onPress={() => handleModifyReservation(reservation.id)}
-                  >
-                    <Ionicons name="create-outline" size={20} color="#E3735E" />
-                    <Text style={styles.modifyButtonText}>Modify</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.actionButton, styles.cancelButton]}
-                    onPress={() => handleCancelReservation(reservation.id)}
-                  >
-                    <Ionicons name="close-circle-outline" size={20} color="#dc3545" />
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </Pressable>
+              {showReviewForm === reservation.id && (
+                <View style={styles.reviewFormContainer}>
+                  <ReviewForm
+                    restaurantId={reservation.restaurant.id}
+                    restaurantName={reservation.restaurant.name}
+                    onSuccess={() => handleReviewSuccess(reservation.id)}
+                  />
                 </View>
               )}
 
-              {activeTab === 'past' && (
-                <Pressable
-                  style={styles.reviewButton}
-                  onPress={() => console.log('Write review')}
-                >
-                  <Ionicons name="star-outline" size={20} color="#E3735E" />
-                  <Text style={styles.reviewButtonText}>Write Review</Text>
-                </Pressable>
-              )}
+              {showCancelModal === reservation.id && renderCancelModal(reservation)}
             </View>
           ))}
         </ScrollView>
@@ -346,9 +479,15 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     marginBottom: 5,
   },
-  restaurantAddress: {
+  addressButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addressText: {
     fontSize: 14,
     color: '#666',
+    marginLeft: 5,
+    textDecorationLine: 'underline',
   },
   reservationDetails: {
     padding: 15,
@@ -377,6 +516,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 20,
     marginLeft: 10,
+  },
+  actionButtonDisabled: {
+    opacity: 0.5,
   },
   modifyButton: {
     backgroundColor: '#fff5f3',
@@ -407,5 +549,63 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontWeight: '500',
     fontSize: 16,
+  },
+  reviewFormContainer: {
+    marginBottom: 20,
+    marginTop: -10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 15,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 10,
+  },
+  modalSubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginLeft: 10,
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#dc3545',
+  },
+  modalButtonSecondary: {
+    backgroundColor: '#f8f9fa',
+  },
+  modalButtonPrimaryText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  modalButtonSecondaryText: {
+    color: '#666',
+    fontWeight: '600',
   },
 });

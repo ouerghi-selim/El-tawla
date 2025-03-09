@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Image, Pressable, Share } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable, Share, Linking, Platform } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,7 +6,9 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleFavorite } from '../../../store/slices/favoriteSlice';
 import BookingForm from '../../../components/BookingForm';
+import ReviewList from '../../../components/ReviewList';
 import type { AppDispatch, RootState } from '../../../store';
+import { openMapsWithAddress } from '../../../components/Map';
 
 const restaurantData = {
   '1': {
@@ -60,9 +62,10 @@ export default function RestaurantScreen() {
   const [showBooking, setShowBooking] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
+  const restaurants = useSelector((state: RootState) => state.restaurants.restaurants);
   const isFavorite = favorites.includes(id as string);
   
-  const restaurant = restaurantData[id as keyof typeof restaurantData];
+  const restaurant = restaurants.find(r => r.id === id) || restaurantData[id as keyof typeof restaurantData];
 
   if (!restaurant) {
     return (
@@ -104,6 +107,12 @@ export default function RestaurantScreen() {
     );
     const average = prices.reduce((a, b) => a + b, 0) / prices.length;
     return Math.round(average);
+  };
+
+  const handleAddressPress = () => {
+    if (restaurant) {
+      openMapsWithAddress(restaurant.address);
+    }
   };
 
   return (
@@ -148,14 +157,16 @@ export default function RestaurantScreen() {
         <View style={styles.section}>
           <Text style={styles.description}>{restaurant.description}</Text>
           
-          <View style={styles.infoRow}>
+          <Pressable onPress={handleAddressPress} style={styles.infoRow}>
             <Ionicons name="location-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{restaurant.address}</Text>
-          </View>
+            <Text style={[styles.infoText, styles.addressText]}>{restaurant.address}</Text>
+          </Pressable>
+          
           <View style={styles.infoRow}>
             <Ionicons name="time-outline" size={20} color="#666" />
             <Text style={styles.infoText}>{restaurant.hours}</Text>
           </View>
+          
           <View style={styles.infoRow}>
             <Ionicons name="call-outline" size={20} color="#666" />
             <Text style={styles.infoText}>{restaurant.phone}</Text>
@@ -195,6 +206,10 @@ export default function RestaurantScreen() {
               ))}
             </View>
           ))}
+        </View>
+
+        <View style={styles.section}>
+          <ReviewList reviews={restaurant.reviews || []} />
         </View>
       </View>
     </ScrollView>
@@ -289,6 +304,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     color: '#666',
+  },
+  addressText: {
+    textDecorationLine: 'underline',
+    color: '#E3735E',
   },
   bookingButton: {
     backgroundColor: '#E3735E',
