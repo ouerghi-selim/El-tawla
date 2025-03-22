@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "El Tawla",
+    "tagline": "Découvrez les meilleurs restaurants en Tunisie"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "search": "Rechercher",
+    "bookings": "Réservations",
+    "profile": "Profil",
+    "favorites": "Favoris"
+  },
+  "auth": {
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "logout": "Déconnexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "name": "Nom complet",
+    "phone": "Numéro de téléphone"
+  },
+  "restaurant": {
+    "book": "Réserver",
+    "menu": "Menu",
+    "reviews": "Avis",
+    "info": "Informations",
+    "location": "Emplacement",
+    "openingHours": "Heures d'ouverture",
+    "priceRange": "Gamme de prix",
+    "cuisine": "Cuisine",
+    "features": "Caractéristiques",
+    "photos": "Photos"
+  },
+  "booking": {
+    "date": "Date",
+    "time": "Heure",
+    "guests": "Nombre de personnes",
+    "confirm": "Confirmer la réservation",
+    "specialRequests": "Demandes spéciales",
+    "bookingConfirmed": "Réservation confirmée",
+    "bookingDetails": "Détails de la réservation",
+    "cancelBooking": "Annuler la réservation",
+    "modifyBooking": "Modifier la réservation"
+  },
+  "search": {
+    "searchPlaceholder": "Rechercher un restaurant, une cuisine...",
+    "filters": "Filtres",
+    "sortBy": "Trier par",
+    "distance": "Distance",
+    "rating": "Note",
+    "price": "Prix",
+    "cuisine": "Type de cuisine",
+    "features": "Caractéristiques",
+    "offers": "Offres spéciales",
+    "noResults": "Aucun résultat trouvé"
+  },
+  "profile": {
+    "editProfile": "Modifier le profil",
+    "settings": "Paramètres",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "paymentMethods": "Méthodes de paiement",
+    "help": "Aide et support",
+    "about": "À propos"
+  },
+  "loyalty": {
+    "points": "Points de fidélité",
+    "history": "Historique",
+    "rewards": "Récompenses",
+    "earnedPoints": "Points gagnés",
+    "usedPoints": "Points utilisés",
+    "availableRewards": "Récompenses disponibles"
+  },
+  "reviews": {
+    "writeReview": "Écrire un avis",
+    "rating": "Note",
+    "comment": "Commentaire",
+    "photos": "Ajouter des photos",
+    "submitReview": "Soumettre l'avis",
+    "editReview": "Modifier l'avis",
+    "deleteReview": "Supprimer l'avis"
+  },
+  "payment": {
+    "addCard": "Ajouter une carte",
+    "cardNumber": "Numéro de carte",
+    "expiryDate": "Date d'expiration",
+    "cvv": "CVV",
+    "cardholderName": "Nom du titulaire",
+    "saveCard": "Enregistrer la carte",
+    "defaultCard": "Carte par défaut",
+    "localPayment": "Méthodes de paiement locales"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "done": "Terminé",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  }
+}

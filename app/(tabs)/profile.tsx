@@ -4,11 +4,17 @@ import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../store';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../utils/i18n/LanguageContext';
+import LanguageSelector from '../../components/LanguageSelector';
+import LanguageIndicator from '../../components/LanguageIndicator';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -18,22 +24,17 @@ export default function ProfileScreen() {
   const menuItems = [
     {
       icon: 'person-outline',
-      label: 'Edit Profile',
+      label: t('profile.editProfile'),
       route: '/settings/edit-profile',
     },
     {
       icon: 'notifications-outline',
-      label: 'Notifications',
+      label: t('profile.notifications'),
       route: '/settings/notifications',
     },
     {
-      icon: 'language-outline',
-      label: 'Language',
-      route: '/settings/language',
-    },
-    {
       icon: 'help-circle-outline',
-      label: 'Help & Support',
+      label: t('profile.help'),
       route: '/settings/help',
     },
   ];
@@ -57,24 +58,26 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <View style={styles.menuSection}>
+      <LanguageSelector />
+
+      <View style={[styles.menuSection, isRTL && styles.menuSectionRTL]}>
         {menuItems.map((item) => (
           <Pressable
             key={item.label}
             style={styles.menuItem}
             onPress={() => router.push(item.route)}
           >
-            <View style={styles.menuItemContent}>
+            <View style={[styles.menuItemContent, isRTL && styles.menuItemContentRTL]}>
               <Ionicons name={item.icon as any} size={24} color="#666" />
-              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Text style={[styles.menuLabel, isRTL && styles.menuLabelRTL]}>{item.label}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
+            <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={24} color="#666" />
           </Pressable>
         ))}
 
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={24} color="#dc3545" />
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t('auth.logout')}</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -192,6 +195,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 30,
   },
+  menuSectionRTL: {
+    direction: 'rtl',
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -210,10 +216,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  menuItemContentRTL: {
+    flexDirection: 'row-reverse',
+  },
   menuLabel: {
     fontSize: 16,
     color: '#1a1a1a',
     marginLeft: 15,
+  },
+  menuLabelRTL: {
+    marginLeft: 0,
+    marginRight: 15,
   },
   logoutButton: {
     flexDirection: 'row',
