@@ -3,6 +3,7 @@ import loyaltyReducer from './slices/loyaltySlice';
 import authReducer from './slices/authSlice';
 import restaurantsReducer from './slices/restaurantSlice';
 import reservationsReducer from './slices/reservationSlice';
+import favoritesReducer from './slices/favoriteSlice';
 
 // Mise à jour du store pour inclure le slice de fidélité
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     reservations: reservationsReducer,
     // Ajout du nouveau reducer de fidélité
     loyalty: loyaltyReducer,
+    favorites: favoritesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

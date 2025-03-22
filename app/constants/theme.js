@@ -109,14 +109,14 @@ export const SPACING = {
 // Motifs et décorations inspirés par l'art tunisien
 export const PATTERNS = {
   // Motifs géométriques inspirés des mosaïques tunisiennes
-  mosaicPattern: require('../assets/patterns/mosaic-pattern.png'),
-  arabicPattern: require('../assets/patterns/arabic-pattern.png'),
-  berberPattern: require('../assets/patterns/berber-pattern.png'),
+  mosaicPattern: require('../../assets/patterns/mosaic-pattern.jpg'),
+  arabicPattern: require('../../assets/patterns/arabic-pattern.jpg'),
+  berberPattern: require('../../assets/patterns/berber-pattern.jpg'),
   
   // Icônes culturelles
-  oliveIcon: require('../assets/icons/olive-icon.png'),
-  palmIcon: require('../assets/icons/palm-icon.png'),
-  doorIcon: require('../assets/icons/door-icon.png'), // Portes bleues tunisiennes
+  oliveIcon: require('../../assets/icons/olive-icon.png'),
+  palmIcon: require('../../assets/icons/palm-icon.png'),
+  doorIcon: require('../../assets/icons/door-icon.png'), // Portes bleues tunisiennes
 };
 
 // Animations et transitions

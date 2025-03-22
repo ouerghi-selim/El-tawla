@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { RootState } from '../../store';
 
 export default function FavoritesScreen() {
-  const favorites = useSelector((state: RootState) => state.favorites.favorites);
+  const favorites = useSelector((state: RootState) => state.favorites?.favorites || []);
   const restaurants = useSelector((state: RootState) => 
     state.restaurants.restaurants.filter(r => favorites.includes(r.id))
   );
