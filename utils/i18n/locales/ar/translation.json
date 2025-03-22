@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "الطاولة",
+    "tagline": "اكتشف أفضل المطاعم في تونس"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "search": "بحث",
+    "bookings": "الحجوزات",
+    "profile": "الملف الشخصي",
+    "favorites": "المفضلة"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "name": "الاسم الكامل",
+    "phone": "رقم الهاتف"
+  },
+  "restaurant": {
+    "book": "حجز",
+    "menu": "القائمة",
+    "reviews": "التقييمات",
+    "info": "معلومات",
+    "location": "الموقع",
+    "openingHours": "ساعات العمل",
+    "priceRange": "نطاق السعر",
+    "cuisine": "نوع المطبخ",
+    "features": "المميزات",
+    "photos": "الصور"
+  },
+  "booking": {
+    "date": "التاريخ",
+    "time": "الوقت",
+    "guests": "عدد الضيوف",
+    "confirm": "تأكيد الحجز",
+    "specialRequests": "طلبات خاصة",
+    "bookingConfirmed": "تم تأكيد الحجز",
+    "bookingDetails": "تفاصيل الحجز",
+    "cancelBooking": "إلغاء الحجز",
+    "modifyBooking": "تعديل الحجز"
+  },
+  "search": {
+    "searchPlaceholder": "ابحث عن مطعم، نوع طعام...",
+    "filters": "التصفية",
+    "sortBy": "ترتيب حسب",
+    "distance": "المسافة",
+    "rating": "التقييم",
+    "price": "السعر",
+    "cuisine": "نوع المطبخ",
+    "features": "المميزات",
+    "offers": "العروض الخاصة",
+    "noResults": "لم يتم العثور على نتائج"
+  },
+  "profile": {
+    "editProfile": "تعديل الملف الشخصي",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "paymentMethods": "طرق الدفع",
+    "help": "المساعدة والدعم",
+    "about": "حول التطبيق"
+  },
+  "loyalty": {
+    "points": "نقاط الولاء",
+    "history": "السجل",
+    "rewards": "المكافآت",
+    "earnedPoints": "النقاط المكتسبة",
+    "usedPoints": "النقاط المستخدمة",
+    "availableRewards": "المكافآت المتاحة"
+  },
+  "reviews": {
+    "writeReview": "كتابة تقييم",
+    "rating": "التقييم",
+    "comment": "التعليق",
+    "photos": "إضافة صور",
+    "submitReview": "إرسال التقييم",
+    "editReview": "تعديل التقييم",
+    "deleteReview": "حذف التقييم"
+  },
+  "payment": {
+    "addCard": "إضافة بطاقة",
+    "cardNumber": "رقم البطاقة",
+    "expiryDate": "تاريخ الانتهاء",
+    "cvv": "رمز التحقق",
+    "cardholderName": "اسم حامل البطاقة",
+    "saveCard": "حفظ البطاقة",
+    "defaultCard": "البطاقة الافتراضية",
+    "localPayment": "طرق الدفع المحلية"
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "done": "تم",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح"
+  }
+}
