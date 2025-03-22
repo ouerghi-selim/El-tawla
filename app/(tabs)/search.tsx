@@ -1,575 +1,615 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, Image, Platform, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, Pressable, ScrollView, ActivityIndicator, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { openMapsWithAddress } from '../../components/Map';
-import type { RootState } from '../../store';
+import * as Haptics from 'expo-haptics';
+import { Picker } from '@react-native-picker/picker';
+import Slider from '@react-native-community/slider';
 
-interface FilterOptions {
-  cuisine: string[];
-  priceRange: string[];
-  rating: number | null;
-  features: string[];
-  dietary: string[];
-  atmosphere: string[];
-  sortBy: string | null;
-}
+import { searchRestaurants, getLocalSpecialties } from '../utils/restaurantService';
+import RestaurantCard from '../components/RestaurantCard';
 
-export default function SearchScreen() {
-  const router = useRouter();
-  const [isFilterMode, setIsFilterMode] = useState(true);
+const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    cuisine: [],
-    priceRange: [],
-    rating: null,
-    features: [],
-    dietary: [],
-    atmosphere: [],
-    sortBy: null,
-  });
-
-  const restaurants = useSelector((state: RootState) => state.restaurants.restaurants) || [];
-
-  const filterCategories = {
-    cuisine: {
-      title: 'Cuisine',
-      icon: 'restaurant',
-      options: [
-        { label: 'Tunisian', icon: 'restaurant-outline', value: 'Tunisian' },
-        { label: 'Mediterranean', icon: 'fish-outline', value: 'Mediterranean' },
-        { label: 'Seafood', icon: 'water-outline', value: 'Seafood' },
-        { label: 'International', icon: 'globe-outline', value: 'International' },
-        { label: 'Traditional', icon: 'home-outline', value: 'Traditional' },
-      ],
-    },
-    priceRange: {
-      title: 'Price Range',
-      icon: 'wallet',
-      options: [
-        { label: 'Budget', icon: 'cash-outline', value: '₪' },
-        { label: 'Moderate', icon: 'card-outline', value: '₪₪' },
-        { label: 'Expensive', icon: 'diamond-outline', value: '₪₪₪' },
-        { label: 'Luxury', icon: 'sparkles-outline', value: '₪₪₪₪' },
-      ],
-    },
-    features: {
-      title: 'Features',
-      icon: 'apps',
-      options: [
-        { label: 'Outdoor Seating', icon: 'sunny-outline', value: 'Outdoor Seating' },
-        { label: 'Private Rooms', icon: 'key-outline', value: 'Private Rooms' },
-        { label: 'Live Music', icon: 'musical-notes-outline', value: 'Live Music' },
-        { label: 'Waterfront View', icon: 'water-outline', value: 'Waterfront View' },
-        { label: 'Rooftop', icon: 'business-outline', value: 'Rooftop' },
-      ],
-    },
-    dietary: {
-      title: 'Dietary',
-      icon: 'leaf',
-      options: [
-        { label: 'Vegetarian Friendly', icon: 'leaf-outline', value: 'Vegetarian Friendly' },
-        { label: 'Vegan Options', icon: 'nutrition-outline', value: 'Vegan Options' },
-        { label: 'Gluten Free', icon: 'wheat-outline', value: 'Gluten Free' },
-        { label: 'Halal', icon: 'moon-outline', value: 'Halal' },
-      ],
-    },
-    atmosphere: {
-      title: 'Atmosphere',
-      icon: 'moon',
-      options: [
-        { label: 'Casual Dining', icon: 'cafe-outline', value: 'Casual Dining' },
-        { label: 'Fine Dining', icon: 'wine-outline', value: 'Fine Dining' },
-        { label: 'Family Friendly', icon: 'people-outline', value: 'Family Friendly' },
-        { label: 'Romantic', icon: 'heart-outline', value: 'Romantic' },
-        { label: 'Business Casual', icon: 'briefcase-outline', value: 'Business Casual' },
-      ],
-    },
-  };
-
-  const sortOptions = [
-    { id: 'rating', label: 'Highest Rated', icon: 'star' },
-    { id: 'price-low', label: 'Price: Low to High', icon: 'trending-down' },
-    { id: 'price-high', label: 'Price: High to Low', icon: 'trending-up' },
-    { id: 'distance', label: 'Nearest to Me', icon: 'location' },
-  ];
-
-  const toggleFilter = (category: keyof FilterOptions, value: string) => {
-    setFilterOptions(prev => ({
-      ...prev,
-      [category]: prev[category]?.includes(value)
-        ? prev[category].filter(v => v !== value)
-        : [...(prev[category] || []), value],
-    }));
-  };
-
-  const setRating = (rating: string) => {
-    const numRating = parseFloat(rating);
-    setFilterOptions(prev => ({
-      ...prev,
-      rating: prev.rating === numRating ? null : numRating,
-    }));
-  };
-
-  const setSortBy = (sort: string | null) => {
-    setFilterOptions(prev => ({
-      ...prev,
-      sortBy: prev.sortBy === sort ? null : sort,
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilterOptions({
-      cuisine: [],
-      priceRange: [],
-      rating: null,
-      features: [],
-      dietary: [],
-      atmosphere: [],
-      sortBy: null,
-    });
-    setSearchQuery('');
-  };
-
-  const getActiveFiltersCount = () => {
-    return Object.values(filterOptions).flat().filter(Boolean).length;
-  };
-
-  const applyFilters = () => {
-    setIsFilterMode(false);
-  };
-
-  const filteredRestaurants = restaurants.filter(restaurant => {
-    if (searchQuery && !restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
+  const [city, setCity] = useState('');
+  const [cuisineType, setCuisineType] = useState('');
+  const [priceLevel, setPriceLevel] = useState(0);
+  const [features, setFeatures] = useState([]);
+  const [sortBy, setSortBy] = useState('relevance');
+  const [showFilters, setShowFilters] = useState(false);
+  const [results, setResults] = useState([]);
+  const [localSpecialties, setLocalSpecialties] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSpecialties, setIsLoadingSpecialties] = useState(true);
+  
+  useEffect(() => {
+    loadLocalSpecialties();
+  }, []);
+  
+  const loadLocalSpecialties = async () => {
+    try {
+      setIsLoadingSpecialties(true);
+      const specialties = await getLocalSpecialties();
+      setLocalSpecialties(specialties);
+    } catch (error) {
+      console.error('Error loading local specialties:', error);
+    } finally {
+      setIsLoadingSpecialties(false);
     }
-    
-    if (filterOptions.cuisine.length && !filterOptions.cuisine.some(c => 
-      restaurant.cuisine.toLowerCase().includes(c.toLowerCase())
-    )) {
-      return false;
-    }
-
-    if (filterOptions.priceRange.length && !filterOptions.priceRange.includes(restaurant.priceRange)) {
-      return false;
-    }
-
-    if (filterOptions.rating && restaurant.rating < filterOptions.rating) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const renderFilterSection = (category: keyof typeof filterCategories) => {
-    const { title, icon, options } = filterCategories[category];
-    
-    return (
-      <View key={category} style={styles.filterSection}>
-        <View style={styles.filterSectionHeader}>
-          <View style={styles.sectionIconContainer}>
-            <Ionicons name={icon as any} size={24} color="#fff" />
-          </View>
-          <Text style={styles.filterSectionTitle}>{title}</Text>
-        </View>
-        <View style={styles.filterOptionsGrid}>
-          {options.map((option) => (
-            <Pressable
-              key={option.value}
-              style={[
-                styles.filterOption,
-                (filterOptions[category] || []).includes(option.value) && styles.filterOptionActive
-              ]}
-              onPress={() => toggleFilter(category, option.value)}
-            >
-              <View style={styles.filterOptionContent}>
-                <View style={[
-                  styles.optionIconContainer,
-                  (filterOptions[category] || []).includes(option.value) && styles.optionIconContainerActive
-                ]}>
-                  <Ionicons
-                    name={option.icon as any}
-                    size={18}
-                    color={(filterOptions[category] || []).includes(option.value) ? '#fff' : '#666'}
-                  />
-                </View>
-                <Text style={[
-                  styles.filterOptionText,
-                  (filterOptions[category] || []).includes(option.value) && styles.filterOptionTextActive
-                ]}>
-                  {option.label}
-                </Text>
-              </View>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-    );
   };
-
+  
+  const handleSearch = async () => {
+    try {
+      setIsLoading(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      const params = {
+        query: searchQuery,
+        city,
+        cuisineType,
+        priceLevel: priceLevel > 0 ? priceLevel : undefined,
+        features: features.length > 0 ? features : undefined,
+        sortBy
+      };
+      
+      const searchResults = await searchRestaurants(params);
+      setResults(searchResults);
+    } catch (error) {
+      console.error('Error searching restaurants:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const toggleFeature = (feature) => {
+    if (features.includes(feature)) {
+      setFeatures(features.filter(f => f !== feature));
+    } else {
+      setFeatures([...features, feature]);
+    }
+    Haptics.selectionAsync();
+  };
+  
+  const handleSpecialtySelect = (specialty) => {
+    setCuisineType(specialty.name);
+    setShowFilters(true);
+    Haptics.selectionAsync();
+  };
+  
+  const handleRestaurantSelect = (restaurant) => {
+    navigation.navigate('RestaurantDetails', { restaurantId: restaurant.id });
+  };
+  
+  const renderSpecialtyItem = ({ item }) => (
+    <Pressable
+      style={styles.specialtyItem}
+      onPress={() => handleSpecialtySelect(item)}
+    >
+      <Text style={styles.specialtyName}>{item.name}</Text>
+      <Text style={styles.specialtyCount}>{item.count} restaurants</Text>
+    </Pressable>
+  );
+  
+  const renderResultItem = ({ item }) => (
+    <RestaurantCard
+      restaurant={item}
+      onPress={() => handleRestaurantSelect(item)}
+    />
+  );
+  
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#666" />
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Ionicons name="search-outline" size={20} color="#666" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search restaurants..."
             value={searchQuery}
             onChangeText={setSearchQuery}
+            placeholder="Rechercher un restaurant, une cuisine..."
+            returnKeyType="search"
+            onSubmitEditing={handleSearch}
           />
-          {(searchQuery || getActiveFiltersCount() > 0) && (
-            <Pressable onPress={clearFilters}>
-              <Ionicons name="close-circle" size={20} color="#666" />
-            </Pressable>
-          )}
         </View>
+        
         <Pressable
-          style={styles.filterToggle}
-          onPress={() => setIsFilterMode(!isFilterMode)}
+          style={styles.filterButton}
+          onPress={() => {
+            setShowFilters(!showFilters);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }}
         >
-          <Ionicons name="options" size={24} color="#E3735E" />
-          {getActiveFiltersCount() > 0 && (
-            <View style={styles.filterBadge}>
-              <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
-            </View>
-          )}
+          <Ionicons
+            name={showFilters ? "options" : "options-outline"}
+            size={24}
+            color={showFilters ? "#E3735E" : "#666"}
+          />
         </Pressable>
       </View>
-
-      {isFilterMode ? (
-        <ScrollView style={styles.filterContainer}>
-          {Object.keys(filterCategories).map((category) => (
-            renderFilterSection(category as keyof typeof filterCategories)
-          ))}
-          
-          <View style={styles.filterSection}>
-            <View style={styles.filterSectionHeader}>
-              <Ionicons name="funnel" size={24} color="#E3735E" />
-              <Text style={styles.filterSectionTitle}>Sort By</Text>
+      
+      {showFilters && (
+        <View style={styles.filtersContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll}>
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Ville</Text>
+              <TextInput
+                style={styles.filterInput}
+                value={city}
+                onChangeText={setCity}
+                placeholder="Tunis, Sfax, Sousse..."
+              />
             </View>
-            <View style={styles.sortOptions}>
-              {sortOptions.map((option) => (
+            
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Cuisine</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={cuisineType}
+                  onValueChange={(value) => setCuisineType(value)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Toutes les cuisines" value="" />
+                  <Picker.Item label="Tunisienne" value="Tunisienne" />
+                  <Picker.Item label="Méditerranéenne" value="Méditerranéenne" />
+                  <Picker.Item label="Française" value="Française" />
+                  <Picker.Item label="Italienne" value="Italienne" />
+                  <Picker.Item label="Fruits de mer" value="Fruits de mer" />
+                  <Picker.Item label="Végétarienne" value="Végétarienne" />
+                </Picker>
+              </View>
+            </View>
+            
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Prix</Text>
+              <View style={styles.priceContainer}>
                 <Pressable
-                  key={option.id}
                   style={[
-                    styles.sortOption,
-                    filterOptions.sortBy === option.id && styles.sortOptionActive
+                    styles.priceButton,
+                    priceLevel === 1 && styles.activePriceButton
                   ]}
-                  onPress={() => setSortBy(option.id)}
+                  onPress={() => {
+                    setPriceLevel(priceLevel === 1 ? 0 : 1);
+                    Haptics.selectionAsync();
+                  }}
+                >
+                  <Text style={[
+                    styles.priceButtonText,
+                    priceLevel === 1 && styles.activePriceButtonText
+                  ]}>€</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.priceButton,
+                    priceLevel === 2 && styles.activePriceButton
+                  ]}
+                  onPress={() => {
+                    setPriceLevel(priceLevel === 2 ? 0 : 2);
+                    Haptics.selectionAsync();
+                  }}
+                >
+                  <Text style={[
+                    styles.priceButtonText,
+                    priceLevel === 2 && styles.activePriceButtonText
+                  ]}>€€</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.priceButton,
+                    priceLevel === 3 && styles.activePriceButton
+                  ]}
+                  onPress={() => {
+                    setPriceLevel(priceLevel === 3 ? 0 : 3);
+                    Haptics.selectionAsync();
+                  }}
+                >
+                  <Text style={[
+                    styles.priceButtonText,
+                    priceLevel === 3 && styles.activePriceButtonText
+                  ]}>€€€</Text>
+                </Pressable>
+              </View>
+            </View>
+            
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Caractéristiques</Text>
+              <View style={styles.featuresContainer}>
+                <Pressable
+                  style={[
+                    styles.featureButton,
+                    features.includes('has_wifi') && styles.activeFeatureButton
+                  ]}
+                  onPress={() => toggleFeature('has_wifi')}
                 >
                   <Ionicons
-                    name={option.icon as any}
-                    size={20}
-                    color={filterOptions.sortBy === option.id ? '#fff' : '#666'}
+                    name="wifi-outline"
+                    size={16}
+                    color={features.includes('has_wifi') ? "#fff" : "#666"}
                   />
                   <Text style={[
-                    styles.sortOptionText,
-                    filterOptions.sortBy === option.id && styles.sortOptionTextActive
-                  ]}>
-                    {option.label}
-                  </Text>
+                    styles.featureButtonText,
+                    features.includes('has_wifi') && styles.activeFeatureButtonText
+                  ]}>Wi-Fi</Text>
                 </Pressable>
-              ))}
+                
+                <Pressable
+                  style={[
+                    styles.featureButton,
+                    features.includes('has_parking') && styles.activeFeatureButton
+                  ]}
+                  onPress={() => toggleFeature('has_parking')}
+                >
+                  <Ionicons
+                    name="car-outline"
+                    size={16}
+                    color={features.includes('has_parking') ? "#fff" : "#666"}
+                  />
+                  <Text style={[
+                    styles.featureButtonText,
+                    features.includes('has_parking') && styles.activeFeatureButtonText
+                  ]}>Parking</Text>
+                </Pressable>
+                
+                <Pressable
+                  style={[
+                    styles.featureButton,
+                    features.includes('has_outdoor_seating') && styles.activeFeatureButton
+                  ]}
+                  onPress={() => toggleFeature('has_outdoor_seating')}
+                >
+                  <Ionicons
+                    name="sunny-outline"
+                    size={16}
+                    color={features.includes('has_outdoor_seating') ? "#fff" : "#666"}
+                  />
+                  <Text style={[
+                    styles.featureButtonText,
+                    features.includes('has_outdoor_seating') && styles.activeFeatureButtonText
+                  ]}>Terrasse</Text>
+                </Pressable>
+              </View>
+            </View>
+            
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Trier par</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={sortBy}
+                  onValueChange={(value) => setSortBy(value)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Pertinence" value="relevance" />
+                  <Picker.Item label="Note" value="rating" />
+                  <Picker.Item label="Distance" value="distance" />
+                </Picker>
+              </View>
+            </View>
+          </ScrollView>
+          
+          <View style={styles.filterActions}>
+            <Pressable
+              style={styles.resetButton}
+              onPress={() => {
+                setCity('');
+                setCuisineType('');
+                setPriceLevel(0);
+                setFeatures([]);
+                setSortBy('relevance');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            >
+              <Text style={styles.resetButtonText}>Réinitialiser</Text>
+            </Pressable>
+            
+            <Pressable
+              style={styles.applyButton}
+              onPress={handleSearch}
+            >
+              <Text style={styles.applyButtonText}>Appliquer</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+      
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#E3735E" />
+          <Text style={styles.loadingText}>Recherche en cours...</Text>
+        </View>
+      ) : results.length > 0 ? (
+        <FlatList
+          data={results}
+          renderItem={renderResultItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.resultsList}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <ScrollView style={styles.contentContainer}>
+          <View style={styles.specialtiesSection}>
+            <Text style={styles.sectionTitle}>Spécialités tunisiennes populaires</Text>
+            
+            {isLoadingSpecialties ? (
+              <ActivityIndicator size="small" color="#E3735E" style={styles.specialtiesLoading} />
+            ) : (
+              <FlatList
+                data={localSpecialties}
+                renderItem={renderSpecialtyItem}
+                keyExtractor={(item) => item.name}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.specialtiesList}
+              />
+            )}
+          </View>
+          
+          <View style={styles.searchTipsSection}>
+            <Text style={styles.sectionTitle}>Conseils de recherche</Text>
+            <View style={styles.tipCard}>
+              <Ionicons name="restaurant-outline" size={24} color="#E3735E" />
+              <View style={styles.tipContent}>
+                <Text style={styles.tipTitle}>Découvrez la cuisine locale</Text>
+                <Text style={styles.tipText}>
+                  Essayez les spécialités tunisiennes comme le couscous, le brik ou la ojja.
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.tipCard}>
+              <Ionicons name="time-outline" size={24} color="#E3735E" />
+              <View style={styles.tipContent}>
+                <Text style={styles.tipTitle}>Réservez à l'avance</Text>
+                <Text style={styles.tipText}>
+                  Les restaurants populaires sont souvent complets, surtout le week-end.
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.tipCard}>
+              <Ionicons name="star-outline" size={24} color="#E3735E" />
+              <View style={styles.tipContent}>
+                <Text style={styles.tipTitle}>Consultez les avis</Text>
+                <Text style={styles.tipText}>
+                  Les avis des autres utilisateurs peuvent vous aider à faire le bon choix.
+                </Text>
+              </View>
             </View>
           </View>
-
-          <Pressable style={styles.applyButton} onPress={applyFilters}>
-            <Text style={styles.applyButtonText}>
-              Show {filteredRestaurants.length} Restaurants
-            </Text>
-          </Pressable>
-        </ScrollView>
-      ) : (
-        <ScrollView style={styles.resultsContainer}>
-          {filteredRestaurants.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="search-outline" size={64} color="#E3735E" />
-              <Text style={styles.emptyStateTitle}>No restaurants found</Text>
-              <Text style={styles.emptyStateText}>
-                Try adjusting your filters or search criteria
-              </Text>
-            </View>
-          ) : (
-            filteredRestaurants.map((restaurant) => (
-              <Pressable
-                key={restaurant.id}
-                style={styles.restaurantCard}
-                onPress={() => router.push(`/restaurant/${restaurant.id}`)}
-              >
-                <Image
-                  source={{ uri: `${restaurant.image}?w=400` }}
-                  style={styles.restaurantImage}
-                />
-                <View style={styles.restaurantInfo}>
-                  <View style={styles.restaurantHeader}>
-                    <Text style={styles.restaurantName}>{restaurant.name}</Text>
-                    <View style={styles.ratingBadge}>
-                      <Ionicons name="star" size={16} color="#FFD700" />
-                      <Text style={styles.ratingText}>{restaurant.rating}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.cuisineText}>{restaurant.cuisine}</Text>
-                  <Text style={styles.priceText}>{restaurant.priceRange}</Text>
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      openMapsWithAddress(restaurant.address);
-                    }}
-                    style={styles.addressContainer}
-                  >
-                    <Ionicons name="location-outline" size={16} color="#666" />
-                    <Text style={styles.addressText}>{restaurant.address}</Text>
-                  </Pressable>
-                </View>
-              </Pressable>
-            ))
-          )}
         </ScrollView>
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  header: {
+  searchContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
+    padding: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  searchBar: {
+  searchInputContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginRight: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginRight: 12,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 10,
+    paddingVertical: 12,
+    paddingLeft: 8,
     fontSize: 16,
+    color: '#333',
   },
-  filterToggle: {
-    position: 'relative',
-    padding: 8,
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: '#E3735E',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
+  filterButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  filterBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+  filtersContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 16,
   },
-  filterContainer: {
-    flex: 1,
-    padding: 20,
+  filtersScroll: {
+    paddingHorizontal: 16,
   },
   filterSection: {
-    marginBottom: 25,
+    marginRight: 24,
+    minWidth: 150,
   },
-  filterSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  filterSectionTitle: {
-    fontSize: 18,
+  filterLabel: {
+    fontSize: 14,
     fontWeight: '600',
-    marginLeft: 10,
     color: '#1a1a1a',
+    marginBottom: 8,
   },
-  filterOptionsGrid: {
+  filterInput: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#333',
+    minWidth: 150,
+  },
+  pickerContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 44,
+    width: 200,
+  },
+  priceContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    margin: -5,
   },
-  sectionIconContainer: {
-    backgroundColor: '#E3735E',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  filterOptionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionIconContainer: {
-    backgroundColor: '#f8f9fa',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+  priceButton: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     marginRight: 8,
   },
-  optionIconContainerActive: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  filterOption: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    margin: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  filterOptionActive: {
-    backgroundColor: '#E3735E',
-    borderColor: '#E3735E',
-  },
-  filterOptionText: {
-    color: '#666',
-    fontSize: 14,
-  },
-  filterOptionTextActive: {
-    color: '#fff',
-  },
-  sortOptions: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
-  sortOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  sortOptionActive: {
+  activePriceButton: {
     backgroundColor: '#E3735E',
   },
-  sortOptionText: {
-    marginLeft: 10,
+  priceButtonText: {
     fontSize: 16,
     color: '#666',
   },
-  sortOptionTextActive: {
+  activePriceButtonText: {
     color: '#fff',
+  },
+  featuresContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  featureButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  activeFeatureButton: {
+    backgroundColor: '#E3735E',
+  },
+  featureButtonText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 4,
+  },
+  activeFeatureButtonText: {
+    color: '#fff',
+  },
+  filterActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+  resetButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 12,
+  },
+  resetButtonText: {
+    fontSize: 14,
+    color: '#666',
   },
   applyButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     backgroundColor: '#E3735E',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
   },
   applyButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
-  resultsContainer: {
+  loadingContainer: {
     flex: 1,
-    padding: 15,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    alignItems: 'center',
   },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  emptyStateText: {
+  loadingText: {
+    marginTop: 16,
     fontSize: 16,
     color: '#666',
-    textAlign: 'center',
   },
-  restaurantCard: {
+  resultsList: {
+    padding: 16,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  specialtiesSection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 16,
+  },
+  specialtiesLoading: {
+    marginVertical: 20,
+  },
+  specialtiesList: {
+    paddingRight: 16,
+  },
+  specialtyItem: {
     backgroundColor: '#fff',
-    borderRadius: 15,
-    overflow: 'hidden',
-    marginBottom: 15,
+    borderRadius: 12,
+    padding: 16,
+    marginRight: 12,
+    width: 180,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
-  restaurantImage: {
-    width: '100%',
-    height: 200,
-  },
-  restaurantInfo: {
-    padding: 15,
-  },
-  restaurantHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  specialtyName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
     marginBottom: 8,
   },
-  restaurantName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    flex: 1,
-  },
-  ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff5e6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  ratingText: {
-    marginLeft: 4,
-    color: '#1a1a1a',
-    fontWeight: '600',
-  },
-  cuisineText: {
+  specialtyCount: {
     fontSize: 14,
     color: '#666',
+  },
+  searchTipsSection: {
+    marginBottom: 24,
+  },
+  tipCard: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tipContent: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  tipTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
     marginBottom: 4,
   },
-  priceText: {
-    fontSize: 14,
-    color: '#E3735E',
-    fontWeight: '500',
-    marginBottom: 8,
-  },
-  addressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addressText: {
+  tipText: {
     fontSize: 14,
     color: '#666',
-    marginLeft: 6,
-    textDecorationLine: 'underline',
+    lineHeight: 20,
   },
 });
+
+export default SearchScreen;
