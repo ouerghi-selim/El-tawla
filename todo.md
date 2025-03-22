@@ -23,7 +23,7 @@
   - [x] Paiement intégré (integrated-payment)
   - [x] Localisation (localization)
   - [x] Interface administrateur (admin-dashboard)
-  - [ ] Amélioration de l'expérience utilisateur (enhanced-ux)
+  - [x] Amélioration de l'expérience utilisateur (enhanced-ux)
   - [ ] Système d'avis amélioré (enhanced-reviews)
   - [x] ~~Livraison et commande à emporter (delivery-takeout)~~ (fonctionnalité annulée par le client)
 - [ ] Améliorer le design pour le marché tunisien
