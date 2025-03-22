@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Haptics from 'expo-haptics';
 
-import { fetchUserFriends } from '../store/slices/socialSlice';
+import { fetchUserFriends } from '../../store/slices/socialSlice';
 
 const FriendsScreen = ({ navigation }) => {
   const dispatch = useDispatch();

@@ -12,12 +12,12 @@ import {
   redeemReward,
   LoyaltyReward,
   LoyaltyTransaction
-} from '../store/slices/loyaltySlice';
+} from '../../store/slices/loyaltySlice';
 import { 
   fetchUserLoyaltyPoints, 
   fetchAvailableRewards, 
   redeemLoyaltyReward 
-} from '../utils/loyaltyService';
+} from '../../utils/loyaltyService';
 
 const LoyaltyScreen = () => {
   const dispatch = useDispatch();

@@ -1,4 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import loyaltyReducer from './slices/loyaltySlice';
+import authReducer from './slices/authSlice';
+import restaurantsReducer from './slices/restaurantSlice';
+import reservationsReducer from './slices/reservationSlice';
 
 // Mise à jour du store pour inclure le slice de fidélité
 export const store = configureStore({

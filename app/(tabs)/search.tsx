@@ -6,8 +6,8 @@ import * as Haptics from 'expo-haptics';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 
-import { searchRestaurants, getLocalSpecialties } from '../utils/restaurantService';
-import RestaurantCard from '../components/RestaurantCard';
+import { searchRestaurants, getLocalSpecialties } from '../../utils/restaurantService';
+import RestaurantCard from '../../components/RestaurantCard';
 
 const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import * as Haptics from 'expo-haptics';
 import MapView, { Marker } from 'react-native-maps';
 
-import { getRestaurantDetails, getRestaurantMenu, getRestaurantPhotos } from '../utils/restaurantService';
+import { getRestaurantDetails, getRestaurantMenu, getRestaurantPhotos } from '../../utils/restaurantService';
 
 const RestaurantDetails = ({ route, navigation }) => {
   const { restaurantId } = route.params;

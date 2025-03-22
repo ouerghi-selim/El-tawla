@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { supabase } from '../supabase/client';
+import { supabase } from '../../utils/supabase';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import * as SocialMedia from 'expo-social-media';
+//import * as SocialMedia from 'expo-social-media';
 
 // Thunks
 export const fetchUserSocialProfile = createAsyncThunk(
@@ -150,7 +150,7 @@ export const shareReservation = createAsyncThunk(
       const message = `J'ai réservé une table chez ${reservation.restaurants.name} pour ${reservation.party_size} personnes le ${reservation.date} à ${reservation.time}. Rejoins-moi via El Tawla!`;
       
       // Share based on platform
-      if (platform === 'whatsapp') {
+    /*  if (platform === 'whatsapp') {
         await SocialMedia.shareViaWhatsApp(message);
       } else if (platform === 'facebook') {
         await SocialMedia.shareViaFacebook(message);
@@ -161,7 +161,7 @@ export const shareReservation = createAsyncThunk(
           'Réservation chez ' + reservation.restaurants.name,
           message
         );
-      } else {
+      } else {*/
         // Default share
         await Sharing.shareAsync(
           FileSystem.documentDirectory + 'reservation.txt',
@@ -171,7 +171,7 @@ export const shareReservation = createAsyncThunk(
             UTI: 'public.plain-text' 
           }
         );
-      }
+     // }
       
       // Log the share activity
       const { data: activity, error: activityError } = await supabase

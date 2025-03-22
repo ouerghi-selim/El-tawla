@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Image, FlatList, Activit
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Haptics from 'expo-haptics';
-import { shareReservation } from '../store/slices/socialSlice';
+import { shareReservation } from '../../store/slices/socialSlice';
 
 const ShareScreen = ({ route, navigation }) => {
   const dispatch = useDispatch();

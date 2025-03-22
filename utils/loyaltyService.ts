@@ -1,4 +1,4 @@
-import { supabase } from '../supabase/client';
+import { supabase } from './supabase';
 import { LoyaltyTransaction, LoyaltyReward } from '../store/slices/loyaltySlice';
 
 export const fetchUserLoyaltyPoints = async (userId: string) => {

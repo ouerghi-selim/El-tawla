@@ -9,8 +9,8 @@ import {
   fetchPaymentMethods,
   removePaymentMethod,
   setDefaultPaymentMethod
-} from '../store/slices/paymentSlice';
-import { validateCreditCard, availablePaymentMethods } from '../utils/paymentService';
+} from '../../store/slices/paymentSlice';
+import { validateCreditCard, availablePaymentMethods } from '../../utils/paymentService';
 
 const PaymentMethodsScreen = ({ navigation }) => {
   const dispatch = useDispatch();

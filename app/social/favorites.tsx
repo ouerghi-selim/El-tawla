@@ -8,7 +8,7 @@ import {
   fetchUserFavorites, 
   fetchUserFriends, 
   recommendRestaurant 
-} from '../store/slices/socialSlice';
+} from '../../store/slices/socialSlice';
 
 const FavoritesScreen = ({ navigation }) => {
   const dispatch = useDispatch();

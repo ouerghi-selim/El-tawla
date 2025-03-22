@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { supabase } from '../supabase/client';
-import { stripeApi } from '../utils/paymentService';
+import { supabase } from '../../utils/supabase';
+import { stripeApi } from '../../utils/paymentService';
 
 // Thunks
 export const fetchPaymentMethods = createAsyncThunk(
