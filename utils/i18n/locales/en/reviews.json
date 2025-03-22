@@ -1,0 +1,37 @@
+{
+  "reviews": {
+    "leaveReview": "Leave a review",
+    "yourRating": "Your rating",
+    "yourComment": "Your comment",
+    "commentPlaceholder": "Share your experience...",
+    "submitSuccess": "Your review has been published successfully",
+    "submitError": "An error occurred while publishing your review",
+    "writeReview": "Write a review",
+    "allReviews": "All reviews",
+    "positiveReviews": "Positive reviews",
+    "negativeReviews": "Negative reviews",
+    "sortBy": "Sort by",
+    "mostRecent": "Most recent",
+    "highestRated": "Highest rated",
+    "helpful": "helpful",
+    "ownerReply": "Owner's reply",
+    "totalReviews": "reviews",
+    "noReviewsFound": "No reviews found for this filter",
+    "fromYesterday": "compared to yesterday",
+    "fromLastWeek": "compared to last week",
+    "fromLastMonth": "compared to last month",
+    "dailyRevenueChart": "Daily revenue",
+    "weeklyRevenueChart": "Weekly revenue",
+    "monthlyRevenueChart": "Monthly revenue",
+    "chartComingSoon": "Chart coming soon",
+    "orders": "orders",
+    "servedTables": "tables served"
+  },
+  "ratings": {
+    "poor": "Poor",
+    "fair": "Fair",
+    "good": "Good",
+    "veryGood": "Very good",
+    "excellent": "Excellent"
+  }
+}
