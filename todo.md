@@ -26,8 +26,17 @@
   - [x] Amélioration de l'expérience utilisateur (enhanced-ux)
   - [x] Système d'avis amélioré (enhanced-reviews)
   - [x] ~~Livraison et commande à emporter (delivery-takeout)~~ (fonctionnalité annulée par le client)
-- [ ] Améliorer le design pour le marché tunisien
 - [ ] Tester les fonctionnalités
+  - [ ] Tester le système de fidélité
+  - [ ] Tester la réservation améliorée
+  - [ ] Tester les détails des restaurants
+  - [ ] Tester les fonctionnalités sociales
+  - [ ] Tester le paiement intégré
+  - [ ] Tester la localisation et le support multilingue
+  - [ ] Tester l'interface administrateur
+  - [ ] Tester les composants d'expérience utilisateur
+  - [ ] Tester le système d'avis
+- [ ] Améliorer le design pour le marché tunisien
 
 ## Documentation
 - [ ] Rédiger un README complet
