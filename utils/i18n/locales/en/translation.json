@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "El Tawla",
+    "tagline": "Discover the best restaurants in Tunisia"
+  },
+  "navigation": {
+    "home": "Home",
+    "search": "Search",
+    "bookings": "Bookings",
+    "profile": "Profile",
+    "favorites": "Favorites"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "name": "Full name",
+    "phone": "Phone number"
+  },
+  "restaurant": {
+    "book": "Book",
+    "menu": "Menu",
+    "reviews": "Reviews",
+    "info": "Information",
+    "location": "Location",
+    "openingHours": "Opening hours",
+    "priceRange": "Price range",
+    "cuisine": "Cuisine",
+    "features": "Features",
+    "photos": "Photos"
+  },
+  "booking": {
+    "date": "Date",
+    "time": "Time",
+    "guests": "Number of guests",
+    "confirm": "Confirm booking",
+    "specialRequests": "Special requests",
+    "bookingConfirmed": "Booking confirmed",
+    "bookingDetails": "Booking details",
+    "cancelBooking": "Cancel booking",
+    "modifyBooking": "Modify booking"
+  },
+  "search": {
+    "searchPlaceholder": "Search for a restaurant, cuisine...",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "distance": "Distance",
+    "rating": "Rating",
+    "price": "Price",
+    "cuisine": "Cuisine type",
+    "features": "Features",
+    "offers": "Special offers",
+    "noResults": "No results found"
+  },
+  "profile": {
+    "editProfile": "Edit profile",
+    "settings": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "paymentMethods": "Payment methods",
+    "help": "Help and support",
+    "about": "About"
+  },
+  "loyalty": {
+    "points": "Loyalty points",
+    "history": "History",
+    "rewards": "Rewards",
+    "earnedPoints": "Points earned",
+    "usedPoints": "Points used",
+    "availableRewards": "Available rewards"
+  },
+  "reviews": {
+    "writeReview": "Write a review",
+    "rating": "Rating",
+    "comment": "Comment",
+    "photos": "Add photos",
+    "submitReview": "Submit review",
+    "editReview": "Edit review",
+    "deleteReview": "Delete review"
+  },
+  "payment": {
+    "addCard": "Add card",
+    "cardNumber": "Card number",
+    "expiryDate": "Expiry date",
+    "cvv": "CVV",
+    "cardholderName": "Cardholder name",
+    "saveCard": "Save card",
+    "defaultCard": "Default card",
+    "localPayment": "Local payment methods"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}

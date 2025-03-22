@@ -15,7 +15,7 @@
 
 ## Développement
 - [x] Créer une branche develop
-- [ ] Implémenter les fonctionnalités manquantes (branches séparées)
+- [x] Implémenter les fonctionnalités manquantes (branches séparées)
   - [x] Système de fidélité (loyalty-program)
   - [x] Réservation améliorée (enhanced-booking)
   - [x] Détails des restaurants (restaurant-details)
@@ -23,9 +23,9 @@
   - [x] Paiement intégré (integrated-payment)
   - [x] Localisation (localization)
   - [x] Interface administrateur (admin-dashboard)
-  - [ ] Amélioration de l'expérience utilisateur (enhanced-ux)
-  - [ ] Système d'avis amélioré (enhanced-reviews)
-  - [ ] Livraison et commande à emporter (delivery-takeout)
+  - [x] Amélioration de l'expérience utilisateur (enhanced-ux)
+  - [x] Système d'avis amélioré (enhanced-reviews)
+  - [x] ~~Livraison et commande à emporter (delivery-takeout)~~ (fonctionnalité annulée par le client)
 - [ ] Améliorer le design pour le marché tunisien
 - [ ] Tester les fonctionnalités
 
