@@ -22,7 +22,7 @@
   - [x] Fonctionnalités sociales (social-features)
   - [x] Paiement intégré (integrated-payment)
   - [x] Localisation (localization)
-  - [ ] Interface administrateur (admin-dashboard)
+  - [x] Interface administrateur (admin-dashboard)
   - [ ] Amélioration de l'expérience utilisateur (enhanced-ux)
   - [ ] Système d'avis amélioré (enhanced-reviews)
   - [ ] Livraison et commande à emporter (delivery-takeout)
