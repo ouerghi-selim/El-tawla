@@ -1,0 +1,37 @@
+{
+  "reviews": {
+    "leaveReview": "ترك تقييم",
+    "yourRating": "تقييمك",
+    "yourComment": "تعليقك",
+    "commentPlaceholder": "شارك تجربتك...",
+    "submitSuccess": "تم نشر تقييمك بنجاح",
+    "submitError": "حدث خطأ أثناء نشر تقييمك",
+    "writeReview": "كتابة تقييم",
+    "allReviews": "جميع التقييمات",
+    "positiveReviews": "تقييمات إيجابية",
+    "negativeReviews": "تقييمات سلبية",
+    "sortBy": "ترتيب حسب",
+    "mostRecent": "الأحدث",
+    "highestRated": "الأعلى تقييماً",
+    "helpful": "مفيد",
+    "ownerReply": "رد المالك",
+    "totalReviews": "تقييمات",
+    "noReviewsFound": "لم يتم العثور على تقييمات لهذا الفلتر",
+    "fromYesterday": "مقارنة بالأمس",
+    "fromLastWeek": "مقارنة بالأسبوع الماضي",
+    "fromLastMonth": "مقارنة بالشهر الماضي",
+    "dailyRevenueChart": "الإيرادات اليومية",
+    "weeklyRevenueChart": "الإيرادات الأسبوعية",
+    "monthlyRevenueChart": "الإيرادات الشهرية",
+    "chartComingSoon": "الرسم البياني قريباً",
+    "orders": "طلبات",
+    "servedTables": "طاولات تم خدمتها"
+  },
+  "ratings": {
+    "poor": "سيء",
+    "fair": "مقبول",
+    "good": "جيد",
+    "veryGood": "جيد جداً",
+    "excellent": "ممتاز"
+  }
+}
