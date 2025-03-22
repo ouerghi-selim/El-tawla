@@ -1,0 +1,37 @@
+{
+  "reviews": {
+    "leaveReview": "Laisser un avis",
+    "yourRating": "Votre note",
+    "yourComment": "Votre commentaire",
+    "commentPlaceholder": "Partagez votre expérience...",
+    "submitSuccess": "Votre avis a été publié avec succès",
+    "submitError": "Une erreur s'est produite lors de la publication de votre avis",
+    "writeReview": "Écrire un avis",
+    "allReviews": "Tous les avis",
+    "positiveReviews": "Avis positifs",
+    "negativeReviews": "Avis négatifs",
+    "sortBy": "Trier par",
+    "mostRecent": "Plus récents",
+    "highestRated": "Mieux notés",
+    "helpful": "utile(s)",
+    "ownerReply": "Réponse du propriétaire",
+    "totalReviews": "avis",
+    "noReviewsFound": "Aucun avis trouvé pour ce filtre",
+    "fromYesterday": "par rapport à hier",
+    "fromLastWeek": "par rapport à la semaine dernière",
+    "fromLastMonth": "par rapport au mois dernier",
+    "dailyRevenueChart": "Revenus quotidiens",
+    "weeklyRevenueChart": "Revenus hebdomadaires",
+    "monthlyRevenueChart": "Revenus mensuels",
+    "chartComingSoon": "Graphique à venir",
+    "orders": "commandes",
+    "servedTables": "tables servies"
+  },
+  "ratings": {
+    "poor": "Médiocre",
+    "fair": "Passable",
+    "good": "Bien",
+    "veryGood": "Très bien",
+    "excellent": "Excellent"
+  }
+}
