@@ -12,6 +12,8 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth" />
           <Stack.Screen name="admin" />
+          <Stack.Screen name="restaurant" />
+          <Stack.Screen name="settings" />
         </Stack>
       </LanguageProvider>
     </Provider>
