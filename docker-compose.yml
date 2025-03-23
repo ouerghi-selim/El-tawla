@@ -17,10 +17,12 @@ services:
     environment:
       - NODE_ENV=development
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
-    command: npm start
-    # Pour permettre l'accès depuis l'extérieur du conteneur
-    network_mode: "host"
+      - REACT_NATIVE_PACKAGER_HOSTNAME=host.docker.internal
+      - EXPO_PUBLIC_SUPABASE_ANON_KEY=${EXPO_PUBLIC_SUPABASE_ANON_KEY:-your_anon_key}
+      - EXPO_PUBLIC_SUPABASE_URL=${EXPO_PUBLIC_SUPABASE_URL:-your_supabase_url}
+      - EXPO_ROUTER_APP_ROOT=./app
+    command: npx expo start --web --clear
+    # network_mode: "host" # Commenté pour permettre l'accès depuis le navigateur local
 
   # Service de base de données (si nécessaire)
   # db:

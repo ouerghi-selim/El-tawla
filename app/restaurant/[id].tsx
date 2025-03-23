@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, Pressable, ActivityIndicator
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import * as Haptics from 'expo-haptics';
-import MapView, { Marker } from 'react-native-maps';
+//import MapView, { Marker } from 'react-native-maps';
 
 import { getRestaurantDetails, getRestaurantMenu, getRestaurantPhotos } from '../../utils/restaurantService';
 
@@ -109,23 +109,23 @@ const RestaurantDetails = ({ route, navigation }) => {
         <Text style={styles.addressText}>{restaurant.address}</Text>
         <Text style={styles.cityText}>{restaurant.postal_code} {restaurant.city}</Text>
         
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: restaurant.latitude,
-            longitude: restaurant.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-        >
-          <Marker
-            coordinate={{
-              latitude: restaurant.latitude,
-              longitude: restaurant.longitude,
-            }}
-            title={restaurant.name}
-          />
-        </MapView>
+        {/*<MapView*/}
+        {/*  style={styles.map}*/}
+        {/*  initialRegion={{*/}
+        {/*    latitude: restaurant.latitude,*/}
+        {/*    longitude: restaurant.longitude,*/}
+        {/*    latitudeDelta: 0.01,*/}
+        {/*    longitudeDelta: 0.01,*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <Marker*/}
+        {/*    coordinate={{*/}
+        {/*      latitude: restaurant.latitude,*/}
+        {/*      longitude: restaurant.longitude,*/}
+        {/*    }}*/}
+        {/*    title={restaurant.name}*/}
+        {/*  />*/}
+        {/*</MapView>*/}
       </View>
       
       <View style={styles.infoSection}>

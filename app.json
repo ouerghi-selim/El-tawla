@@ -16,6 +16,11 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
+    "extra": {
+      "router": {
+        "origin": "./app"
+      }
+    },
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true

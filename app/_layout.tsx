@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { Provider } from 'react-redux';
 import { store } from '../store';
 import { LanguageProvider } from '../utils/i18n/LanguageContext';
-import '../utils/i18n/il8n';
+import '../utils/i18n/i18n';
 
 export default function RootLayout() {
   return (
