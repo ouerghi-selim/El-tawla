@@ -9,6 +9,7 @@ import { fetchRestaurants } from '../../store/slices/restaurantSlice';
 import Map from '../../components/Map';
 import { openMapsWithAddress } from '../../components/Map';
 import type { AppDispatch, RootState } from '../../store';
+import { TunisianRestaurantCard, TunisianButton, TUNISIAN_COLORS } from '../../components/tunisian';
 
 type FilterCategory = 'cuisine' | 'price' | 'rating';
 
@@ -164,7 +165,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name="list"
             size={20}
-            color={!showMap ? '#E3735E' : '#666'}
+            color={!showMap ? TUNISIAN_COLORS.primary : '#666'}
           />
           <Text style={[styles.toggleText, !showMap && styles.toggleTextActive]}>
             List
@@ -177,7 +178,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name="map"
             size={20}
-            color={showMap ? '#E3735E' : '#666'}
+            color={showMap ? TUNISIAN_COLORS.primary : '#666'}
           />
           <Text style={[styles.toggleText, showMap && styles.toggleTextActive]}>
             Map
@@ -210,37 +211,21 @@ export default function DiscoverScreen() {
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {filteredRestaurants.map((restaurant) => (
-                <Pressable
+                <TunisianRestaurantCard
                   key={restaurant.id}
-                  style={styles.restaurantCard}
-                  onPress={() => handleRestaurantPress(restaurant.id)}
-                >
-                  <Image
-                    source={{ uri: `${restaurant.image}?w=500` }}
-                    style={styles.restaurantImage}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                    style={styles.gradient}
-                  >
-                    <Text style={styles.restaurantName}>{restaurant.name}</Text>
-                    <Text style={styles.restaurantInfo}>
-                      {restaurant.cuisine} • {restaurant.rating}★ • {restaurant.priceRange}
-                    </Text>
-                    <Pressable 
-                      style={styles.locationInfo}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleAddressPress(restaurant.address);
-                      }}
-                    >
-                      <Ionicons name="location" size={16} color="#fff" />
-                      <Text style={[styles.locationText, styles.addressLink]}>
-                        {restaurant.address}
-                      </Text>
-                    </Pressable>
-                  </LinearGradient>
-                </Pressable>
+                  restaurant={{
+                    id: restaurant.id,
+                    name: restaurant.name,
+                    image: `${restaurant.image}?w=500`,
+                    cuisine: restaurant.cuisine,
+                    rating: restaurant.rating,
+                    priceRange: restaurant.priceRange,
+                    address: restaurant.address,
+                  }}
+                  onPress={handleRestaurantPress}
+                  onAddressPress={handleAddressPress}
+                  variant="default"
+                />
               ))}
             </ScrollView>
           )}
@@ -254,6 +239,14 @@ export default function DiscoverScreen() {
           <Text style={styles.promotionDescription}>
             Get 20% off when you book before 6 PM
           </Text>
+          <TunisianButton 
+            title="Book Now" 
+            onPress={() => router.push('/booking')}
+            variant="primary"
+            size="small"
+            icon="door"
+            style={styles.promotionButton}
+          />
         </View>
       </View>
     </ScrollView>
@@ -263,7 +256,7 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: TUNISIAN_COLORS.background,
   },
   header: {
     padding: 20,
@@ -272,11 +265,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: TUNISIAN_COLORS.text.secondary,
     marginTop: 5,
   },
   searchContainer: {
@@ -297,9 +290,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     marginLeft: 10,
-    marginRight: 10,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
   },
   filtersContainer: {
     marginBottom: 15,
@@ -311,25 +303,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    paddingHorizontal: 16,
     borderRadius: 20,
-    marginRight: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   activeFilterChip: {
-    backgroundColor: '#E3735E',
+    backgroundColor: TUNISIAN_COLORS.primary,
+    borderColor: TUNISIAN_COLORS.primary,
   },
   filterIcon: {
     marginRight: 4,
   },
   filterText: {
     fontSize: 14,
-    color: '#666',
+    color: TUNISIAN_COLORS.text.primary,
   },
   activeFilterText: {
     color: '#fff',
@@ -337,27 +327,37 @@ const styles = StyleSheet.create({
   mapToggleContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: 15,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginHorizontal: 20,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   toggleButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    marginHorizontal: 5,
-    backgroundColor: '#f0f0f0',
+    flex: 1,
   },
   toggleButtonActive: {
-    backgroundColor: '#fff5f3',
+    backgroundColor: '#f0f0f0',
   },
   toggleText: {
-    marginLeft: 5,
+    marginLeft: 6,
+    fontSize: 14,
     color: '#666',
-    fontSize: 16,
   },
   toggleTextActive: {
-    color: '#E3735E',
+    color: TUNISIAN_COLORS.primary,
+    fontWeight: '600',
   },
   mapContainer: {
     height: 300,
@@ -367,91 +367,58 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   featuredSection: {
-    marginTop: 20,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    marginHorizontal: 20,
     marginBottom: 15,
-    paddingHorizontal: 20,
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
   },
   noResults: {
     alignItems: 'center',
-    padding: 40,
+    justifyContent: 'center',
+    padding: 30,
   },
   noResultsText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#666',
-    marginTop: 15,
+    marginTop: 10,
   },
   noResultsSubtext: {
     fontSize: 14,
     color: '#999',
     marginTop: 5,
-  },
-  restaurantCard: {
-    width: 300,
-    height: 200,
-    marginLeft: 20,
-    borderRadius: 15,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  restaurantImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '60%',
-    padding: 15,
-    justifyContent: 'flex-end',
-  },
-  restaurantName: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  restaurantInfo: {
-    color: '#fff',
-    fontSize: 14,
-    marginTop: 5,
-  },
-  locationInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  locationText: {
-    color: '#fff',
-    fontSize: 12,
-    marginLeft: 5,
-  },
-  addressLink: {
-    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   promotionsSection: {
-    marginTop: 20,
-    paddingBottom: 30,
+    marginBottom: 30,
   },
   promotionCard: {
-    backgroundColor: '#E3735E',
-    margin: 20,
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
     padding: 20,
     borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   promotionTitle: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    color: TUNISIAN_COLORS.text.primary,
+    marginBottom: 8,
   },
   promotionDescription: {
-    color: '#fff',
-    marginTop: 5,
+    fontSize: 14,
+    color: TUNISIAN_COLORS.text.secondary,
+    marginBottom: 15,
+  },
+  promotionButton: {
+    alignSelf: 'flex-start',
   },
 });
