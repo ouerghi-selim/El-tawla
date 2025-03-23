@@ -7,7 +7,7 @@ import type { AppDispatch, RootState } from '../../store';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../../utils/i18n/LanguageContext';
 import LanguageSelector from '../../components/LanguageSelector';
-import LanguageIndicator from '../../components/LanguageIndicator';
+import { TunisianButton, TUNISIAN_COLORS, TUNISIAN_SHADOWS, TUNISIAN_BORDER_RADIUS } from '../../components/tunisian';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -68,17 +68,21 @@ export default function ProfileScreen() {
             onPress={() => router.push(item.route)}
           >
             <View style={[styles.menuItemContent, isRTL && styles.menuItemContentRTL]}>
-              <Ionicons name={item.icon as any} size={24} color="#666" />
+              <Ionicons name={item.icon as any} size={24} color={TUNISIAN_COLORS.text.secondary} />
               <Text style={[styles.menuLabel, isRTL && styles.menuLabelRTL]}>{item.label}</Text>
             </View>
-            <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={24} color="#666" />
+            <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={24} color={TUNISIAN_COLORS.text.secondary} />
           </Pressable>
         ))}
 
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#dc3545" />
-          <Text style={styles.logoutText}>{t('auth.logout')}</Text>
-        </Pressable>
+        <TunisianButton
+          title={t('auth.logout')}
+          onPress={handleLogout}
+          variant="outline"
+          icon="door"
+          style={styles.logoutButton}
+          textStyle={styles.logoutText}
+        />
       </View>
     </ScrollView>
   );
@@ -87,7 +91,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: TUNISIAN_COLORS.background,
   },
   header: {
     alignItems: 'center',
@@ -103,11 +107,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
   },
   email: {
     fontSize: 16,
-    color: '#666',
+    color: TUNISIAN_COLORS.text.secondary,
     marginTop: 5,
   },
   badgeContainer: {
@@ -117,14 +121,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   badge: {
-    backgroundColor: '#E3735E',
+    backgroundColor: TUNISIAN_COLORS.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 15,
+    borderRadius: TUNISIAN_BORDER_RADIUS.small,
     margin: 4,
   },
   badgeText: {
-    color: '#fff',
+    color: TUNISIAN_COLORS.text.light,
     fontSize: 12,
     fontWeight: '500',
   },
@@ -134,12 +138,8 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     marginHorizontal: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: TUNISIAN_BORDER_RADIUS.medium,
+    ...TUNISIAN_SHADOWS.medium,
   },
   statItem: {
     alignItems: 'center',
@@ -148,11 +148,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E3735E',
+    color: TUNISIAN_COLORS.primary,
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: TUNISIAN_COLORS.text.secondary,
     marginTop: 5,
   },
   reliabilityScore: {
@@ -168,12 +168,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     margin: 20,
     padding: 15,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: TUNISIAN_BORDER_RADIUS.medium,
+    ...TUNISIAN_SHADOWS.medium,
   },
   infoContent: {
     marginLeft: 15,
@@ -182,12 +178,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
     marginBottom: 8,
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: TUNISIAN_COLORS.text.secondary,
     lineHeight: 20,
   },
   menuSection: {
@@ -204,13 +200,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: TUNISIAN_BORDER_RADIUS.medium,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...TUNISIAN_SHADOWS.small,
   },
   menuItemContent: {
     flexDirection: 'row',
@@ -221,7 +213,7 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     fontSize: 16,
-    color: '#1a1a1a',
+    color: TUNISIAN_COLORS.text.primary,
     marginLeft: 15,
   },
   menuLabelRTL: {
@@ -229,23 +221,9 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
     marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   logoutText: {
-    color: '#dc3545',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 10,
+    color: TUNISIAN_COLORS.error,
   },
 });
